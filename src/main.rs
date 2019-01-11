@@ -6,7 +6,7 @@ use structopt::StructOpt;
 
 #[derive(StructOpt, Debug)]
 #[structopt(name = "list")]
-struct Opt {
+struct JustList {
     #[structopt(long = "installed")]
     pub installed: bool,
     #[structopt(long = "cached")]
@@ -17,13 +17,13 @@ struct Opt {
     pub with_paths: bool,
 }
 
-impl Opt {
+impl JustList {
     fn with_versions(&self) -> bool {
         !self.without_versions
     }
 }
 
-fn list_installed(opt: &Opt, packages: &InstalledPackages) {
+fn list_installed(opt: &JustList, packages: &InstalledPackages) {
     println!(" > Installed packages:");
     for (pkg_name, pkg_version) in packages.get_packages().iter() {
         print!("\t - {}", pkg_name);
@@ -34,7 +34,7 @@ fn list_installed(opt: &Opt, packages: &InstalledPackages) {
     }
 }
 
-fn list_cached(opt: &Opt, downloads: &AvailableDownloads) {
+fn list_cached(opt: &JustList, downloads: &AvailableDownloads) {
     println!(" > Cached packages:");
     for (pkg_name, pkg_variants) in downloads.get_downloads().iter() {
         print!("\t - {}", pkg_name);
@@ -45,7 +45,7 @@ fn list_cached(opt: &Opt, downloads: &AvailableDownloads) {
     }
 }
 
-fn list_cached_variants(opt: &Opt, pkg_variants: &HashMap<Version, PathBuf>) {
+fn list_cached_variants(opt: &JustList, pkg_variants: &HashMap<Version, PathBuf>) {
     for (pkg_version, path) in pkg_variants.iter() {
         if opt.with_paths && opt.with_versions() {
             print!(" ({} in {:?})", pkg_version, path);
@@ -58,7 +58,7 @@ fn list_cached_variants(opt: &Opt, pkg_variants: &HashMap<Version, PathBuf>) {
     }
 }
 
-fn list(opt: &Opt) {
+fn list(opt: &JustList) {
     use just_core::kernel::Kernel;
 
     let kernel = Kernel::load();
@@ -73,7 +73,7 @@ fn list(opt: &Opt) {
 }
 
 fn main() {
-    let mut opt: Opt = Opt::from_args();
+    let mut opt: JustList = JustList::from_args();
     if !opt.installed {
         opt.installed = !opt.cached;
     }
